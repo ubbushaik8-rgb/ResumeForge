@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResumeForge Pro — ATS-Ready Resume Builder</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- jsPDF only (no html2canvas — we render text directly for ATS compatibility) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Sortable for drag-and-drop -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ══ LOADING SCREEN ══ -->
+<div id="loadingScreen" class="load-screen">
+  <div class="load-inner">
+    <svg class="load-logo" viewBox="0 0 48 48" fill="none">
+      <rect x="6" y="2" width="30" height="42" rx="3" stroke="url(#g1)" stroke-width="2.2"/>
+      <line x1="13" y1="13" x2="30" y2="13" stroke="url(#g1)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="13" y1="20" x2="30" y2="20" stroke="url(#g1)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="13" y1="27" x2="22" y2="27" stroke="url(#g1)" stroke-width="2" stroke-linecap="round"/>
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#4F8EF7"/><stop offset="1" stop-color="#A78BFA"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <h1>ResumeForge <em>Pro</em></h1>
+    <p>ATS-optimised · Selectable PDF · Professional</p>
+    <div class="load-bar"><div class="load-fill"></div></div>
+  </div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar" id="navbar">
+  <div class="nb-left">
+    <div class="brand">
+      <svg viewBox="0 0 22 22" fill="none" class="brand-svg">
+        <rect x="2" y="1" width="14" height="20" rx="2" stroke="currentColor" stroke-width="1.6"/>
+        <line x1="5" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="5" y1="11" x2="13" y2="11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="5" y1="15" x2="9" y2="15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-text">ResumeForge</span>
+      <span class="brand-pro">PRO</span>
+    </div>
+    <!-- Mobile tabs -->
+    <div class="mob-tabs">
+      <button class="mob-tab active" data-show="formPanel"><i class="fas fa-pen"></i> Edit</button>
+      <button class="mob-tab" data-show="previewPanel"><i class="fas fa-eye"></i> Preview</button>
+    </div>
+  </div>
+
+  <div class="nb-center">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span>Completion</span>
+        <span id="pctLabel" class="pct-num">0%</span>
+      </div>
+      <div class="progress-bar"><div id="progressBar" class="progress-inner"></div></div>
+    </div>
+  </div>
+
+  <div class="nb-right">
+    <!-- Undo/Redo -->
+    <button class="nb-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled><i class="fas fa-rotate-left"></i></button>
+    <button class="nb-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled><i class="fas fa-rotate-right"></i></button>
+    <div class="nb-sep"></div>
+    <!-- ATS check -->
+    <button class="nb-btn highlight" id="atsBtn" title="ATS Score">
+      <i class="fas fa-robot"></i> <span>ATS Check</span>
+    </button>
+    <button class="nb-btn" id="themeToggle" title="Toggle theme"><i class="fas fa-moon" id="themeIco"></i></button>
+    <button class="nb-btn" id="printBtn" title="Print"><i class="fas fa-print"></i></button>
+    <button class="nb-btn" id="jsonExportBtn" title="Export JSON"><i class="fas fa-file-export"></i></button>
+    <button class="nb-btn" id="jsonImportBtn" title="Import JSON"><i class="fas fa-file-import"></i></button>
+    <input type="file" id="jsonFileInput" accept=".json" hidden/>
+    <div class="nb-sep"></div>
+    <button class="btn-primary" id="pdfBtn">
+      <i class="fas fa-file-pdf"></i> Export PDF
+    </button>
+  </div>
+</nav>
+
+<!-- ══ MAIN LAYOUT ══ -->
+<div class="shell">
+
+  <!-- ── LEFT: FORM PANEL ── -->
+  <aside class="form-panel" id="formPanel">
+
+    <!-- Rail nav -->
+    <nav class="rail">
+      <a class="rail-item active" data-sec="s-info" title="Info"><i class="fas fa-user"></i><span>Info</span></a>
+      <a class="rail-item" data-sec="s-summary" title="Summary"><i class="fas fa-align-left"></i><span>Bio</span></a>
+      <a class="rail-item" data-sec="s-exp" title="Experience"><i class="fas fa-briefcase"></i><span>Work</span></a>
+      <a class="rail-item" data-sec="s-edu" title="Education"><i class="fas fa-graduation-cap"></i><span>Edu</span></a>
+      <a class="rail-item" data-sec="s-skills" title="Skills"><i class="fas fa-code"></i><span>Skills</span></a>
+      <a class="rail-item" data-sec="s-proj" title="Projects"><i class="fas fa-diagram-project"></i><span>Work</span></a>
+      <a class="rail-item" data-sec="s-certs" title="Certifications"><i class="fas fa-award"></i><span>Certs</span></a>
+      <a class="rail-item" data-sec="s-lang" title="Languages"><i class="fas fa-language"></i><span>Lang</span></a>
+      <a class="rail-item" data-sec="s-score" title="Score"><i class="fas fa-chart-pie"></i><span>Score</span></a>
+    </nav>
+
+    <!-- Form scroll -->
+    <div class="form-body" id="formBody">
+
+      <!-- ─ TEMPLATES + ACCENT ─ -->
+      <div class="card" id="s-tpl">
+        <div class="card-head"><i class="fas fa-swatchbook ico"></i><h3>Template &amp; Style</h3></div>
+        <div class="tpl-grid">
+          <button class="tpl-opt active" data-tpl="classic" title="Classic">
+            <div class="to-thumb classic-t"><div class="t-hdr"></div><div class="t-body"><div class="t-col s"></div><div class="t-col l"></div></div></div>
+            <span>Classic</span>
+          </button>
+          <button class="tpl-opt" data-tpl="modern" title="Modern">
+            <div class="to-thumb modern-t"><div class="t-top"></div><div class="t-rows"><div class="t-r"></div><div class="t-r s"></div><div class="t-r"></div></div></div>
+            <span>Modern</span>
+          </button>
+          <button class="tpl-opt" data-tpl="minimal" title="Minimal">
+            <div class="to-thumb minimal-t"><div class="t-ln acc"></div><div class="t-ln w"></div><div class="t-ln"></div><div class="t-ln s"></div></div>
+            <span>Minimal</span>
+          </button>
+          <button class="tpl-opt" data-tpl="compact" title="Compact">
+            <div class="to-thumb compact-t"><div class="t-stripe"></div><div class="t-grid"><div><div class="t-b"></div><div class="t-b s"></div></div><div><div class="t-b"></div><div class="t-b"></div></div></div></div>
+            <span>Compact</span>
+          </button>
+        </div>
+        <div class="accent-row">
+          <span class="field-label">Accent</span>
+          <div class="swatches" id="swatches">
+            <button class="sw active" data-c="#1D4ED8" style="background:#1D4ED8"></button>
+            <button class="sw" data-c="#047857" style="background:#047857"></button>
+            <button class="sw" data-c="#7C3AED" style="background:#7C3AED"></button>
+            <button class="sw" data-c="#B45309" style="background:#B45309"></button>
+            <button class="sw" data-c="#0F172A" style="background:#0F172A"></button>
+            <button class="sw" data-c="#BE123C" style="background:#BE123C"></button>
+            <button class="sw" data-c="#0E7490" style="background:#0E7490"></button>
+            <input type="color" id="customAccent" class="sw custom-sw" value="#1D4ED8" title="Custom"/>
+          </div>
+        </div>
+        <!-- Font size -->
+        <div class="font-size-row">
+          <span class="field-label">Resume Font Size</span>
+          <div class="fs-controls">
+            <button class="fs-btn" id="fsDown"><i class="fas fa-minus"></i></button>
+            <span id="fsVal" class="fs-val">11pt</span>
+            <button class="fs-btn" id="fsUp"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ PERSONAL INFO ─ -->
+      <div class="card" id="s-info">
+        <div class="card-head"><i class="fas fa-user-tie ico"></i><h3>Personal Info</h3><span class="card-badge" id="infoBadge"></span></div>
+
+        <div class="photo-zone">
+          <label class="photo-box" for="photoPicker" id="photoBox">
+            <img id="photoImg" src="" alt="" style="display:none"/>
+            <div class="photo-ph" id="photoPh"><i class="fas fa-camera"></i><span>Add Photo</span></div>
+            <div class="photo-hover"><i class="fas fa-pencil"></i></div>
+          </label>
+          <input type="file" id="photoPicker" accept="image/*" hidden/>
+          <div class="photo-meta">
+            <p class="pmeta">Professional photo recommended</p>
+            <p class="pmeta muted">JPG or PNG · Max 4MB</p>
+            <button id="removePhotoBtn" class="remove-ph-btn" style="display:none"><i class="fas fa-trash"></i> Remove</button>
+          </div>
+        </div>
+
+        <div class="fg2">
+          <div class="f full"><label>Full Name <em>*</em></label>
+            <div class="fi"><i class="fas fa-signature fii"></i><input id="fullName" type="text" placeholder="Jane Smith" maxlength="80"/></div></div>
+          <div class="f"><label>Job Title <em>*</em></label>
+            <div class="fi"><i class="fas fa-id-badge fii"></i><input id="jobTitle" type="text" placeholder="Software Engineer" maxlength="60"/></div></div>
+          <div class="f"><label>Email <em>*</em></label>
+            <div class="fi"><i class="fas fa-envelope fii"></i><input id="email" type="email" placeholder="jane@example.com"/></div></div>
+          <div class="f"><label>Phone</label>
+            <div class="fi"><i class="fas fa-phone fii"></i><input id="phone" type="tel" placeholder="+1 555 000 0000"/></div></div>
+          <div class="f"><label>City, Country</label>
+            <div class="fi"><i class="fas fa-location-dot fii"></i><input id="location" type="text" placeholder="New York, USA"/></div></div>
+          <div class="f"><label>Portfolio / Website</label>
+            <div class="fi"><i class="fas fa-globe fii"></i><input id="website" type="url" placeholder="yoursite.com"/></div></div>
+          <div class="f"><label>LinkedIn</label>
+            <div class="fi"><i class="fab fa-linkedin fii"></i><input id="linkedin" type="text" placeholder="linkedin.com/in/jane"/></div></div>
+          <div class="f"><label>GitHub</label>
+            <div class="fi"><i class="fab fa-github fii"></i><input id="github" type="text" placeholder="github.com/jane"/></div></div>
+          <div class="f"><label>Twitter / X</label>
+            <div class="fi"><i class="fab fa-x-twitter fii"></i><input id="twitter" type="text" placeholder="@jane"/></div></div>
+          <div class="f"><label>Nationality</label>
+            <div class="fi"><i class="fas fa-flag fii"></i><input id="nationality" type="text" placeholder="American"/></div></div>
+        </div>
+      </div>
+
+      <!-- ─ SUMMARY ─ -->
+      <div class="card" id="s-summary">
+        <div class="card-head"><i class="fas fa-align-left ico"></i><h3>Professional Summary</h3></div>
+        <div class="f full">
+          <div class="fi ta"><textarea id="summary" rows="5" maxlength="700" placeholder="Write a concise 3–5 sentence summary. Focus on your years of experience, key strengths, and what you bring to an employer. Avoid vague phrases — be specific."></textarea></div>
+          <div class="char-info">
+            <span id="sumLen">0</span>/700
+            <span id="sumQuality" class="sum-q"></span>
+          </div>
+        </div>
+        <!-- Keyword density hint for ATS -->
+        <div class="ats-hint">
+          <i class="fas fa-robot"></i>
+          <span>Include job-relevant keywords naturally in your summary for better ATS matching.</span>
+        </div>
+      </div>
+
+      <!-- ─ EXPERIENCE ─ -->
+      <div class="card" id="s-exp">
+        <div class="card-head"><i class="fas fa-briefcase ico"></i><h3>Work Experience</h3><span class="cnt" id="expCnt">0</span></div>
+        <div id="expList" class="dyn"></div>
+        <button class="add-row" data-s="experience"><i class="fas fa-plus"></i> Add Position</button>
+      </div>
+
+      <!-- ─ EDUCATION ─ -->
+      <div class="card" id="s-edu">
+        <div class="card-head"><i class="fas fa-graduation-cap ico"></i><h3>Education</h3><span class="cnt" id="eduCnt">0</span></div>
+        <div id="eduList" class="dyn"></div>
+        <button class="add-row" data-s="education"><i class="fas fa-plus"></i> Add Education</button>
+      </div>
+
+      <!-- ─ SKILLS ─ -->
+      <div class="card" id="s-skills">
+        <div class="card-head"><i class="fas fa-code ico"></i><h3>Skills</h3><span class="cnt" id="sklCnt">0</span></div>
+        <div class="skill-note"><i class="fas fa-circle-info"></i> Skills use proficiency labels (not percentages) — ATS-friendly &amp; recruiter-preferred.</div>
+        <div class="skl-add">
+          <div class="fi skl-fi"><i class="fas fa-plus fii"></i><input id="sklInput" type="text" placeholder="e.g. Python, Figma, AWS…"/></div>
+          <select id="sklProf" class="prof-sel">
+            <option value="Expert">Expert</option>
+            <option value="Advanced" selected>Advanced</option>
+            <option value="Proficient">Proficient</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Beginner">Beginner</option>
+          </select>
+          <select id="sklCat" class="cat-sel">
+            <option value="Technical">Technical</option>
+            <option value="Design">Design</option>
+            <option value="Tools">Tools</option>
+            <option value="Soft Skills">Soft Skills</option>
+            <option value="Languages">Languages</option>
+            <option value="Other">Other</option>
+          </select>
+          <button class="add-skl-btn" id="addSklBtn">Add</button>
+        </div>
+        <div id="sklList" class="skl-list"></div>
+      </div>
+
+      <!-- ─ PROJECTS ─ -->
+      <div class="card" id="s-proj">
+        <div class="card-head"><i class="fas fa-diagram-project ico"></i><h3>Projects</h3><span class="cnt" id="prjCnt">0</span></div>
+        <div id="projList" class="dyn"></div>
+        <button class="add-row" data-s="projects"><i class="fas fa-plus"></i> Add Project</button>
+      </div>
+
+      <!-- ─ CERTIFICATIONS ─ -->
+      <div class="card" id="s-certs">
+        <div class="card-head"><i class="fas fa-award ico"></i><h3>Certifications &amp; Awards</h3><span class="cnt" id="crtCnt">0</span></div>
+        <div id="certList" class="dyn"></div>
+        <button class="add-row" data-s="certifications"><i class="fas fa-plus"></i> Add Certification</button>
+      </div>
+
+      <!-- ─ LANGUAGES ─ -->
+      <div class="card" id="s-lang">
+        <div class="card-head"><i class="fas fa-language ico"></i><h3>Languages</h3><span class="cnt" id="lngCnt">0</span></div>
+        <div id="langList" class="dyn"></div>
+        <button class="add-row" data-s="languages"><i class="fas fa-plus"></i> Add Language</button>
+      </div>
+
+      <!-- ─ RESUME SCORE ─ -->
+      <div class="card score-card" id="s-score">
+        <div class="card-head"><i class="fas fa-chart-pie ico gold"></i><h3>Resume Score</h3></div>
+        <div class="score-body">
+          <svg class="ring-svg" viewBox="0 0 110 110">
+            <defs>
+              <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4F8EF7"/>
+                <stop offset="100%" stop-color="#A78BFA"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="55" cy="55" r="46"/>
+            <circle class="ring-arc" id="ringArc" cx="55" cy="55" r="46"
+              stroke-dasharray="289" stroke-dashoffset="289"/>
+            <text x="55" y="50" class="ring-n" id="ringNum">0</text>
+            <text x="55" y="64" class="ring-s">/100</text>
+          </svg>
+          <div class="score-grade" id="scoreGrade">—</div>
+        </div>
+        <ul class="chklist" id="chklist"></ul>
+      </div>
+
+      <!-- Footer -->
+      <div class="form-foot">
+        <button class="foot-btn danger" id="clearBtn"><i class="fas fa-trash"></i> Clear All</button>
+        <button class="foot-btn" id="saveDraftBtn"><i class="fas fa-floppy-disk"></i> Save Draft</button>
+      </div>
+
+    </div><!-- /form-body -->
+  </aside>
+
+  <!-- ── RIGHT: PREVIEW PANEL ── -->
+  <main class="preview-panel" id="previewPanel">
+    <div class="prev-bar">
+      <div class="pb-l">
+        <span class="prev-label"><i class="fas fa-file-lines"></i> Live Preview</span>
+        <span class="tpl-pill" id="tplPill">Classic</span>
+        <span class="ats-badge" id="atsBadge" title="ATS Score"><i class="fas fa-robot"></i> ATS: <strong id="atsScore">—</strong></span>
+      </div>
+      <div class="pb-r">
+        <!-- Page break indicator -->
+        <span class="pg-info" id="pgInfo">1 page</span>
+        <div class="zoom-ctrl">
+          <button class="zm-btn" id="zmOut"><i class="fas fa-minus"></i></button>
+          <span class="zm-val" id="zmVal">100%</span>
+          <button class="zm-btn" id="zmIn"><i class="fas fa-plus"></i></button>
+          <button class="zm-btn" id="zmReset"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prev-stage" id="prevStage">
+      <!-- Page break ruler (visual guide) -->
+      <div class="page-break-ruler" id="pageBreakRuler" style="display:none"></div>
+      <div class="resume-sheet" id="resumeSheet">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </main>
+
+</div><!-- /shell -->
+
+<!-- ══ ATS MODAL ══ -->
+<div class="modal-overlay" id="atsModal" style="display:none">
+  <div class="modal">
+    <div class="modal-head">
+      <h2><i class="fas fa-robot"></i> ATS Compatibility Report</h2>
+      <button class="modal-close" id="atsClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="atsBody">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOASTS ══ -->
+<div class="toasts" id="toasts"></div>
+
+<!-- ══ SHORTCUTS HINT ══ -->
+<div class="shortcut-bar" id="shortcutBar">
+  <kbd>Ctrl+Z</kbd> Undo &nbsp;·&nbsp; <kbd>Ctrl+Y</kbd> Redo &nbsp;·&nbsp;
+  <kbd>Ctrl+S</kbd> Save &nbsp;·&nbsp; <kbd>Ctrl+P</kbd> Print &nbsp;·&nbsp;
+  <kbd>Ctrl+E</kbd> Export PDF
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
