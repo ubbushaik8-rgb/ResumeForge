@@ -6,29 +6,35 @@ ResumeForge is a modern interactive resume builder that helps students and job s
 
 ---
 
+## 🌐 Live Demo
+
+🔗 **Live Website:** https://ubbushaik8-rgb.github.io/ResumeForge/
+
+---
+
 ## ✨ Features
 
-* Professional Resume Templates
-* Real-Time Resume Preview
-* Responsive Design
-* Dynamic Education Section
-* Dynamic Experience Section
-* Skills Management
-* Project Showcase Section
-* Modern User Interface
-* Mobile Friendly Design
-* Easy Customization
-* Fast and Lightweight
+- Professional Resume Templates
+- Real-Time Resume Preview
+- Responsive Design
+- Dynamic Education Section
+- Dynamic Experience Section
+- Skills Management
+- Project Showcase Section
+- Modern User Interface
+- Mobile Friendly Design
+- Easy Customization
+- Fast and Lightweight
 
 ---
 
 ## 🛠️ Tech Stack
 
-* HTML5
-* CSS3
-* JavaScript
-* Git
-* GitHub Pages
+- HTML5
+- CSS3
+- JavaScript
+- Git
+- GitHub Pages
 
 ---
 
@@ -67,12 +73,12 @@ Open `index.html` in your preferred web browser.
 
 ## 🎯 Future Enhancements
 
-* PDF Resume Export
-* Multiple Resume Themes
-* Dark Mode
-* Local Storage Support
-* AI Resume Suggestions
-* ATS Score Checker
+- PDF Resume Export
+- Multiple Resume Themes
+- Dark Mode
+- Local Storage Support
+- AI Resume Suggestions
+- ATS Score Checker
 
 ---
 
@@ -86,4 +92,4 @@ GitHub: https://github.com/ubbushaik8-rgb
 
 ## ⭐ Support
 
-If you found this project useful, consider giving it a star on GitHub.
+If you found this project useful, consider giving it a star on GitHub.giving it a star on GitHub.
