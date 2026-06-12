@@ -6,35 +6,29 @@ ResumeForge is a modern interactive resume builder that helps students and job s
 
 ---
 
-## 🌐 Live Demo
-
-🔗 https://ubbushaik8-rgb.github.io/ResumeForge/
-
----
-
 ## ✨ Features
 
-- Professional Resume Templates
-- Real-Time Resume Preview
-- Responsive Design
-- Dynamic Education Section
-- Dynamic Experience Section
-- Skills Management
-- Project Showcase Section
-- Modern User Interface
-- Mobile Friendly Design
-- Easy Customization
-- Fast and Lightweight
+* Professional Resume Templates
+* Real-Time Resume Preview
+* Responsive Design
+* Dynamic Education Section
+* Dynamic Experience Section
+* Skills Management
+* Project Showcase Section
+* Modern User Interface
+* Mobile Friendly Design
+* Easy Customization
+* Fast and Lightweight
 
 ---
 
 ## 🛠️ Tech Stack
 
-- HTML5
-- CSS3
-- JavaScript
-- Git
-- GitHub Pages
+* HTML5
+* CSS3
+* JavaScript
+* Git
+* GitHub Pages
 
 ---
 
@@ -53,40 +47,32 @@ ResumeForge/
 
 ## 🚀 Getting Started
 
-1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/ubbushaik8-rgb/ResumeForge.git
 ```
 
-2. Open the project folder
+### 2. Open the Project Folder
 
 ```bash
 cd ResumeForge
 ```
 
-3. Run `index.html` in your browser.
+### 3. Run the Application
 
----
-
-## 📸 Preview
-
-Add a screenshot of your project here.
-
-```md
-![ResumeForge Preview](screenshot.png)
-```
+Open `index.html` in your preferred web browser.
 
 ---
 
 ## 🎯 Future Enhancements
 
-- PDF Resume Export
-- Multiple Resume Themes
-- Dark Mode
-- Local Storage Support
-- AI Resume Suggestions
-- ATS Score Checker
+* PDF Resume Export
+* Multiple Resume Themes
+* Dark Mode
+* Local Storage Support
+* AI Resume Suggestions
+* ATS Score Checker
 
 ---
 
@@ -100,4 +86,4 @@ GitHub: https://github.com/ubbushaik8-rgb
 
 ## ⭐ Support
 
-If you like this project, consider giving it a star on GitHub!
+If you found this project useful, consider giving it a star on GitHub.
